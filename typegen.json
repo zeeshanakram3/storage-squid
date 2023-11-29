@@ -1,0 +1,72 @@
+{
+  "outDir": "src/types",
+  "specVersions": "joystream.jsonl",
+  "pallets": {
+    "Content": {
+      "events": [
+        "VideoCreated",
+        "VideoUpdated",
+        "VideoDeleted",
+        "VideoDeletedByModerator",
+        "VideoVisibilitySetByModerator",
+        "ChannelCreated",
+        "ChannelUpdated",
+        "ChannelDeleted",
+        "ChannelDeletedByModerator",
+        "ChannelVisibilitySetByModerator"
+      ],
+      "calls": [],
+      "storage": []
+    },
+    "Storage": {
+      "events": [
+        "StorageBucketCreated",
+        "StorageBucketInvitationAccepted",
+        "StorageBucketsUpdatedForBag",
+        "StorageOperatorMetadataSet",
+        "StorageBucketVoucherLimitsSet",
+        "PendingDataObjectsAccepted",
+        "StorageBucketInvitationCancelled",
+        "StorageBucketOperatorInvited",
+        "StorageBucketOperatorRemoved",
+        "StorageBucketStatusUpdated",
+        "StorageBucketDeleted",
+        "VoucherChanged",
+        "DynamicBagCreated",
+        "DynamicBagDeleted",
+        "DataObjectsUploaded",
+        "DataObjectsUpdated",
+        "DataObjectsMoved",
+        "DataObjectsDeleted",
+        "DistributionBucketCreated",
+        "DistributionBucketStatusUpdated",
+        "DistributionBucketDeleted",
+        "DistributionBucketsUpdatedForBag",
+        "DistributionBucketModeUpdated",
+        "DistributionBucketOperatorInvited",
+        "DistributionBucketInvitationCancelled",
+        "DistributionBucketInvitationAccepted",
+        "DistributionBucketMetadataSet",
+        "DistributionBucketOperatorRemoved",
+        "DistributionBucketFamilyCreated",
+        "DistributionBucketFamilyMetadataSet",
+        "DistributionBucketFamilyDeleted"
+      ],
+      "calls": [],
+      "storage": []
+    },
+    "Members": {
+      "events": [
+        "MemberCreated",
+        "MembershipBought",
+        "MembershipGifted",
+        "MemberInvited",
+        "MemberProfileUpdated",
+        "MemberAccountsUpdated",
+        "MemberRemarked"
+      ],
+      "calls": [],
+      "storage": []
+    }
+  }
+}

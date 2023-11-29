@@ -9,6 +9,8 @@ services:
     environment:
       POSTGRES_DB: squid
       POSTGRES_PASSWORD: squid
+    networks:
+      - joystream
     ports:
       - '${DB_PORT}:${DB_PORT}'
     command:
@@ -34,6 +36,8 @@ services:
     ports:
       - '127.0.0.1:${PROCESSOR_PROMETHEUS_PORT}:${PROCESSOR_PROMETHEUS_PORT}'
       - '[::1]:${PROCESSOR_PROMETHEUS_PORT}:${PROCESSOR_PROMETHEUS_PORT}'
+    networks:
+      - joystream
     depends_on:
       - squid_db
     volumes:
@@ -62,12 +66,14 @@ services:
     command: [ 'make', 'serve' ]
     ports:
       - '${GQL_PORT}:${GQL_PORT}'
+    networks:
+      - joystream
 
 volumes:
   squid_db_data:
 
-
+    # Join default joystream network (from joystream monorepo docker-compose.yml) to connect will Argus/Colossus nodes
 networks:
-  default:
-    external:
-      name: joystream_default
+  joystream:
+    external: true
+    name: joystream_default

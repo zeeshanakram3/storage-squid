@@ -1,0 +1,73 @@
+{
+  "name": "joystream-storage-squid",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "generate:schema": "./scripts/generate-schema-file.sh",
+    "build": "npm run generate:schema; rm -rf lib && tsc",
+    "lint": "eslint --ext .ts ./src",
+    "format": "prettier --write .",
+    "checks": "prettier --check . && npm run lint && make codegen && tsc --noEmit --pretty",
+    "db:migrate": "npx squid-typeorm-migration apply",
+    "processor-start": "node -r dotenv-expand/config lib/processor.js",
+    "graphql-server-start": "NODE_ENV=production patch-package --patch-dir assets/patches && squid-graphql-server --subscriptions",
+    "postinstall": "patch-package --patch-dir assets/patches"
+  },
+  "overrides": {
+    "@polkadot/api": "8.9.1",
+    "@polkadot/keyring": "9.5.1",
+    "@polkadot/types": "8.9.1",
+    "@polkadot/util": "9.5.1",
+    "@polkadot/util-crypto": "9.5.1",
+    "@joystream/types": "0.20.5"
+  },
+  "dependencies": {
+    "@joystream/js": "^1.4.0",
+    "@openapitools/openapi-generator-cli": "^2.5.2",
+    "@polkadot/util-crypto": "9.5.1",
+    "@subsquid/archive-registry": "^3.3.0",
+    "@subsquid/graphql-server": "^4.3.1",
+    "@subsquid/ss58": "^2.0.1",
+    "@subsquid/substrate-processor": "^7.2.1",
+    "@subsquid/typeorm-migration": "^1.2.2",
+    "@subsquid/typeorm-store": "^1.2.4",
+    "ajv": "^6.11.0",
+    "async-lock": "^1.3.1",
+    "axios": "^1.2.1",
+    "dotenv": "^16.0.3",
+    "dotenv-expand": "^10.0.0",
+    "graphql-tools": "^8.3.11",
+    "lodash": "^4.17.21",
+    "patch-package": "^6.5.0",
+    "pg": "8.8.0",
+    "type-graphql": "^1.2.0-rc.1",
+    "typeorm": "^0.3.11"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^3.0.0",
+    "@graphql-codegen/import-types-preset": "^1.18.1",
+    "@graphql-codegen/typescript": "^1.22.0",
+    "@graphql-codegen/typescript-document-nodes": "^2.2.11",
+    "@graphql-codegen/typescript-operations": "^1.17.16",
+    "@subsquid/substrate-metadata-explorer": "^3.1.1",
+    "@subsquid/substrate-typegen": "^8.0.1",
+    "@subsquid/typeorm-codegen": "^1.3.2",
+    "@types/async-lock": "^1.1.3",
+    "@types/lodash": "^4.14.189",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.43.0",
+    "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.2"
+  }
+}
