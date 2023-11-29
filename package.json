@@ -1,5 +1,5 @@
 {
-  "name": "joystream-storage-squid",
+  "name": "storage-squid",
   "version": "1.0.0",
   "engines": {
     "node": ">=16"
