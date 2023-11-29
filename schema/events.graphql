@@ -1,0 +1,38 @@
+type Event @entity {
+  "{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Hash of the extrinsic the event was emitted in"
+  inExtrinsic: String @index
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  "Timestamp of the block the event was emitted in"
+  timestamp: DateTime!
+
+  "More specific event data, which depends on event type"
+  data: EventData!
+}
+
+union EventData = MetaprotocolTransactionStatusEventData
+
+type MetaprotocolTransactionResultOK {
+  phantom: Int
+}
+
+type MetaprotocolTransactionResultFailed {
+  errorMessage: String!
+}
+
+union MetaprotocolTransactionResult =
+    MetaprotocolTransactionResultOK
+  | MetaprotocolTransactionResultFailed
+
+type MetaprotocolTransactionStatusEventData {
+  "The result of metaprotocol action"
+  result: MetaprotocolTransactionResult!
+}
