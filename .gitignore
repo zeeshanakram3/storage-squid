@@ -1,0 +1,14 @@
+/node_modules
+/lib
+
+/**Versions.json
+/**Versions.jsonl
+
+# IDE files
+/.idea
+src/model/generated
+src/types/
+/schema.graphql
+/db/persisted
+/scripts/orion-v1-migration/data
+/db/export
