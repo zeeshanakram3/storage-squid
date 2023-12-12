@@ -1,5 +1,4 @@
 import {
-  Channel,
   DistributionBucketOperator,
   DistributionBucketOperatorMetadata,
   StorageBag,
@@ -9,8 +8,6 @@ import {
   StorageBagOwnerMember,
   StorageBagOwnerWorkingGroup,
   StorageDataObject,
-  Video,
-  VideoSubtitle,
 } from '../../model'
 import { Block } from '../../processor'
 import {
@@ -22,7 +19,6 @@ import {
 } from '../../types/v1000'
 import { criticalError } from '../../utils/misc'
 import { EntityManagerOverlay, Flat, RepositoryOverlay } from '../../utils/overlay'
-import { ASSETS_MAP } from '../content/utils'
 
 export function getDynamicBagId(bagId: DynamicBagIdType): string {
   if (bagId.__kind === 'Channel') {
@@ -126,7 +122,7 @@ export function createDataObjects(
       id: objectId.toString(),
       createdAt: new Date(block.timestamp || ''),
       isAccepted: false,
-      
+
       ipfsHash: objectParams.ipfsContentId,
       size: objectParams.size,
       stateBloatBond,
@@ -140,32 +136,6 @@ export function createDataObjects(
   })
 
   return dataObjects
-}
-
-export async function unsetAssetRelations(
-  overlay: EntityManagerOverlay,
-  dataObject: Flat<StorageDataObject>
-): Promise<void> {
-  for (const { DataObjectTypeConstructor, entityProperty } of Object.values(ASSETS_MAP.channel)) {
-    if (dataObject.type instanceof DataObjectTypeConstructor) {
-      const channel = await overlay.getRepository(Channel).getByIdOrFail(dataObject.type.channel)
-      channel[entityProperty] = null
-    }
-  }
-  for (const { DataObjectTypeConstructor, entityProperty } of Object.values(ASSETS_MAP.video)) {
-    if (dataObject.type instanceof DataObjectTypeConstructor) {
-      const video = await overlay.getRepository(Video).getByIdOrFail(dataObject.type.video)
-      video[entityProperty] = null
-    }
-  }
-  for (const { DataObjectTypeConstructor, entityProperty } of Object.values(ASSETS_MAP.subtitle)) {
-    if (dataObject.type instanceof DataObjectTypeConstructor) {
-      const subtitle = await overlay
-        .getRepository(VideoSubtitle)
-        .getByIdOrFail(dataObject.type.subtitle)
-      subtitle[entityProperty] = null
-    }
-  }
 }
 
 export async function removeDistributionBucketOperator(
@@ -200,7 +170,6 @@ export async function deleteDataObjects(
   objects: Flat<StorageDataObject>[]
 ) {
   overlay.getRepository(StorageDataObject).remove(...objects)
-  await Promise.all(objects.map((o) => unsetAssetRelations(overlay, o)))
 }
 
 export async function deleteDataObjectsByIds(overlay: EntityManagerOverlay, ids: bigint[]) {

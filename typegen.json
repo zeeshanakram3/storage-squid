@@ -2,22 +2,6 @@
   "outDir": "src/types",
   "specVersions": "joystream.jsonl",
   "pallets": {
-    "Content": {
-      "events": [
-        "VideoCreated",
-        "VideoUpdated",
-        "VideoDeleted",
-        "VideoDeletedByModerator",
-        "VideoVisibilitySetByModerator",
-        "ChannelCreated",
-        "ChannelUpdated",
-        "ChannelDeleted",
-        "ChannelDeletedByModerator",
-        "ChannelVisibilitySetByModerator"
-      ],
-      "calls": [],
-      "storage": []
-    },
     "Storage": {
       "events": [
         "StorageBucketCreated",
@@ -51,19 +35,6 @@
         "DistributionBucketFamilyCreated",
         "DistributionBucketFamilyMetadataSet",
         "DistributionBucketFamilyDeleted"
-      ],
-      "calls": [],
-      "storage": []
-    },
-    "Members": {
-      "events": [
-        "MemberCreated",
-        "MembershipBought",
-        "MembershipGifted",
-        "MemberInvited",
-        "MemberProfileUpdated",
-        "MemberAccountsUpdated",
-        "MemberRemarked"
       ],
       "calls": [],
       "storage": []

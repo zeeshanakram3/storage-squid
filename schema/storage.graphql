@@ -167,33 +167,30 @@ type DistributionBucketBag @entity @index(fields: ["distributionBucket", "bag"],
 }
 
 type DataObjectTypeChannelAvatar {
-  "Related channel entity"
-  channel: Channel!
+  "Related channel entity ID"
+  channelId: BigInt!
 }
 
 type DataObjectTypeChannelCoverPhoto {
-  "Related channel entity"
-  channel: Channel!
+  "Related channel entity ID"
+  channelId: BigInt!
 }
 
 type DataObjectTypeVideoMedia {
-  "Related video entity"
-  video: Video!
+  "Related video entity ID"
+  videoId: BigInt!
 }
 
 type DataObjectTypeVideoThumbnail {
-  "Related video entity"
-  video: Video!
+  "Related video entity ID"
+  videoId: BigInt!
 }
 
 type DataObjectTypeVideoSubtitle {
-  "Related subtitle entity"
-  subtitle: VideoSubtitle!
+  "Related subtitle entity ID"
+  subtitleId: String!
 
-  # Useful for filtering subtitles against video, since
-  # relationship filtering through variant is not supported
-  "Related video entity"
-  video: Video!
+  videoId: BigInt!
 }
 
 type DataObjectTypeChannelPayoutsPayload {

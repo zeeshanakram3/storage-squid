@@ -7,26 +7,6 @@ import {
 import { TypeormDatabase } from '@subsquid/typeorm-store'
 import { Logger } from './logger'
 import {
-  processChannelCreatedEvent,
-  processChannelDeletedByModeratorEvent,
-  processChannelDeletedEvent,
-  processChannelUpdatedEvent,
-  processChannelVisibilitySetByModeratorEvent,
-} from './mappings/content/channel'
-import {
-  processVideoCreatedEvent,
-  processVideoDeletedByModeratorEvent,
-  processVideoDeletedEvent,
-  processVideoUpdatedEvent,
-  processVideoVisibilitySetByModeratorEvent,
-} from './mappings/content/video'
-import {
-  processMemberAccountsUpdatedEvent,
-  processMemberProfileUpdatedEvent,
-  processMemberRemarkedEvent,
-  processNewMember,
-} from './mappings/membership'
-import {
   processDataObjectsDeletedEvent,
   processDataObjectsMovedEvent,
   processDataObjectsUpdatedEvent,
@@ -80,23 +60,11 @@ type MapModuleEvents<Module extends keyof typeof events> = {
     string as `${Capitalize<Module>}.${Capitalize<Event>}`]: typeof events[Module][Event]
 }
 
-type EventsMap = MapModuleEvents<'content'> &
-  MapModuleEvents<'members'> &
-  MapModuleEvents<'storage'>
+type EventsMap = MapModuleEvents<'storage'>
 type EventHandlers = { [Event in keyof EventsMap]: EventHandler<Event> }
 type EventNames = keyof EventsMap
 
 const eventHandlers: EventHandlers = {
-  'Content.VideoCreated': processVideoCreatedEvent,
-  'Content.VideoUpdated': processVideoUpdatedEvent,
-  'Content.VideoDeleted': processVideoDeletedEvent,
-  'Content.VideoDeletedByModerator': processVideoDeletedByModeratorEvent,
-  'Content.VideoVisibilitySetByModerator': processVideoVisibilitySetByModeratorEvent,
-  'Content.ChannelCreated': processChannelCreatedEvent,
-  'Content.ChannelUpdated': processChannelUpdatedEvent,
-  'Content.ChannelDeleted': processChannelDeletedEvent,
-  'Content.ChannelDeletedByModerator': processChannelDeletedByModeratorEvent,
-  'Content.ChannelVisibilitySetByModerator': processChannelVisibilitySetByModeratorEvent,
   'Storage.StorageBucketCreated': processStorageBucketCreatedEvent,
   'Storage.StorageBucketInvitationAccepted': processStorageBucketInvitationAcceptedEvent,
   'Storage.StorageBucketsUpdatedForBag': processStorageBucketsUpdatedForBagEvent,
@@ -129,13 +97,6 @@ const eventHandlers: EventHandlers = {
   'Storage.DistributionBucketFamilyCreated': processDistributionBucketFamilyCreatedEvent,
   'Storage.DistributionBucketFamilyMetadataSet': processDistributionBucketFamilyMetadataSetEvent,
   'Storage.DistributionBucketFamilyDeleted': processDistributionBucketFamilyDeletedEvent,
-  'Members.MemberCreated': processNewMember,
-  'Members.MembershipBought': processNewMember,
-  'Members.MembershipGifted': processNewMember,
-  'Members.MemberInvited': processNewMember,
-  'Members.MemberAccountsUpdated': processMemberAccountsUpdatedEvent,
-  'Members.MemberProfileUpdated': processMemberProfileUpdatedEvent,
-  'Members.MemberRemarked': processMemberRemarkedEvent,
 }
 
 const eventNames = Object.keys(eventHandlers)
@@ -182,10 +143,10 @@ async function processEvent<EventName extends EventNames>(
   const eventHandler = eventHandlers[eventName]
   const [module, name] = eventName
     .split('.')
-    .map((str) => str.charAt(0).toLowerCase() + str.slice(1)) as [ModuleNames, string]
+    .map((str) => str.charAt(0).toLowerCase() + str.slice(1))
   const moduleName = module as ModuleNames
   const eventNameInModule = name as EventNamesInModule<typeof moduleName>
-  const eventDecoder = events[moduleName][eventNameInModule]
+  const eventDecoder = events[moduleName][eventNameInModule] as EventsMap[EventName]
   await eventHandler({ block, overlay, event, eventDecoder, indexInBlock, extrinsicHash })
 }
 
