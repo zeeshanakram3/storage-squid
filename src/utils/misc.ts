@@ -1,3 +1,5 @@
+import { base64Encode } from '@polkadot/util-crypto'
+import { randomBytes } from 'crypto'
 import _ from 'lodash'
 
 export function criticalError(message: string, metadata?: Record<string, unknown>): never {
@@ -21,4 +23,8 @@ export function idStringFromNumber(idNum: number) {
   const idStr = idNum.toString(36)
   // Add leading zeros to simplify sorting
   return _.repeat('0', 8 - idStr.length) + idStr
+}
+
+export function uniqueId(byteSize = 32) {
+  return base64Encode(randomBytes(byteSize))
 }

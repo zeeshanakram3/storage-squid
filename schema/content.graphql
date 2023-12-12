@@ -1,0 +1,10 @@
+type VideoSubtitle @entity {
+  "(videoId)-{type}-{language}"
+  id: ID!
+
+  "MIME type description of format used for this subtitle"
+  mimeType: String!
+
+  "Storage object representing the subtitle file"
+  asset: StorageDataObject
+}
