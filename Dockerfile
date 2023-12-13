@@ -10,10 +10,15 @@ ADD package-lock.json .
 ADD assets assets
 RUN npm ci
 ADD tsconfig.json .
+ADD typegen.json .
+ADD joystream.jsonl .
 ADD src src
 ADD schema schema
 ADD scripts scripts
 RUN npx squid-typeorm-codegen
+RUN npx squid-substrate-typegen typegen.json
+RUN npm run generate:schema || true 
+RUN	npx squid-typeorm-codegen
 RUN npm run build
 
 FROM node-with-gyp AS deps

@@ -43,6 +43,23 @@ import {
 import { events } from './types'
 import { EntityManagerOverlay } from './utils/overlay'
 
+const PROCESSOR = new SubstrateBatchProcessor().setFields({
+  extrinsic: { hash: true },
+  block: { timestamp: true },
+})
+
+type Fields = SubstrateBatchProcessorFields<typeof PROCESSOR>
+export type Block = BlockHeader<Fields>
+export type Event = _Event<Fields>
+
+type MapModuleEvents<Module extends keyof typeof events> = {
+  [Event in keyof typeof events[Module] &
+    string as `${Capitalize<Module>}.${Capitalize<Event>}`]: typeof events[Module][Event]
+}
+
+type EventsMap = MapModuleEvents<'content'> & MapModuleEvents<'storage'>
+type EventNames = keyof EventsMap
+
 export type EventHandlerContext<EventName extends EventNames> = {
   overlay: EntityManagerOverlay
   block: Block
@@ -56,14 +73,7 @@ export type EventHandler<EventName extends EventNames> =
   | ((ctx: EventHandlerContext<EventName>) => void)
   | ((ctx: EventHandlerContext<EventName>) => Promise<void>)
 
-type MapModuleEvents<Module extends keyof typeof events> = {
-  [Event in keyof typeof events[Module] &
-    string as `${Capitalize<Module>}.${Capitalize<Event>}`]: typeof events[Module][Event]
-}
-
-type EventsMap = MapModuleEvents<'content'> & MapModuleEvents<'storage'>
 type EventHandlers = { [Event in keyof EventsMap]: EventHandler<Event> }
-type EventNames = keyof EventsMap
 
 const eventHandlers: EventHandlers = {
   'Content.VideoCreated': processVideoCreatedEvent,
@@ -110,27 +120,17 @@ const rpcURL = process.env.RPC_ENDPOINT || 'http://localhost:9944/'
 
 const maxCachedEntities = parseInt(process.env.MAX_CACHED_ENTITIES || '1000')
 
-const processor = new SubstrateBatchProcessor()
-  .setDataSource({
-    ...(archiveUrl ? { archive: archiveUrl } : {}),
-    chain: {
-      url: rpcURL,
-      rateLimit: 10,
-    },
-  })
-  .addEvent({
-    name: eventNames,
-    extrinsic: true,
-    call: true,
-  })
-  .setFields({
-    extrinsic: { hash: true },
-    block: { timestamp: true },
-  })
-
-type Fields = SubstrateBatchProcessorFields<typeof processor>
-export type Block = BlockHeader<Fields>
-export type Event = _Event<Fields>
+PROCESSOR.setDataSource({
+  ...(archiveUrl ? { archive: archiveUrl } : {}),
+  chain: {
+    url: rpcURL,
+    rateLimit: 10,
+  },
+}).addEvent({
+  name: eventNames,
+  extrinsic: true,
+  call: true,
+})
 
 type ModuleNames = keyof typeof events
 type EventNamesInModule<M extends ModuleNames> = keyof typeof events[M]
@@ -153,7 +153,7 @@ async function processEvent<EventName extends EventNames>(
   await eventHandler({ block, overlay, event, eventDecoder, indexInBlock, extrinsicHash })
 }
 
-processor.run(new TypeormDatabase({ isolationLevel: 'READ COMMITTED' }), async (ctx) => {
+PROCESSOR.run(new TypeormDatabase({ isolationLevel: 'READ COMMITTED' }), async (ctx) => {
   Logger.set(ctx.log)
 
   const overlay = await EntityManagerOverlay.create(ctx.store)

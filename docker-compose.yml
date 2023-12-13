@@ -13,14 +13,7 @@ services:
       - joystream
     ports:
       - '${DB_PORT}:${DB_PORT}'
-    command:
-      [
-        'postgres',
-        '-c',
-        'config_file=/etc/postgresql/postgresql.conf',
-        '-p',
-        '${DB_PORT}'
-      ]
+    command: ['postgres', '-c', 'config_file=/etc/postgresql/postgresql.conf', '-p', '${DB_PORT}']
     shm_size: 1g
     volumes:
       - squid_db_data:/var/lib/postgresql/data
@@ -46,7 +39,7 @@ services:
         source: .
         target: /storage-squid
     working_dir: /storage-squid
-    command: [ 'make', 'process' ]
+    command: ['make', 'process']
 
   squid_graphql-server:
     container_name: squid_graphql-server
@@ -65,7 +58,7 @@ services:
         source: .
         target: /storage-squid
     working_dir: /storage-squid
-    command: [ 'make', 'serve' ]
+    command: ['make', 'serve']
     ports:
       - '${GQL_PORT}:${GQL_PORT}'
     networks:
