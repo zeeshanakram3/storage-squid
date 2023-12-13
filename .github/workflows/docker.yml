@@ -1,0 +1,60 @@
+name: Publish Storage-Squid Docker image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Extract Package Version
+        id: extract_version
+        shell: bash
+        run: |
+          echo "squid_version=$(cat package.json | jq -r '.version')" >> $GITHUB_OUTPUT
+
+      - name: Make some space
+        shell: bash
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        if: github.event_name == 'workflow_dispatch'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # docker/build-push-action doc:
+      # Be careful because any file mutation in the steps that precede the
+      # build step will be ignored, including processing of the .dockerignore file
+      # since the context is based on the Git reference. However, you can use
+      # the Path context using the context input alongside the actions/checkout action
+      # to remove this restriction.
+      - name: Build storage-squid
+        uses: docker/build-push-action@v3
+        with:
+          # Do not use local dir context to ensure we can build from a commit directly
+          # context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: joystream/storage-squid:latest
+
+      - name: Push storage-squid
+        run: |
+          docker image tag joystream/storage-squid:latest joystream/storage-squid:${{ steps.extract_version.outputs.squid_version }}
+          docker push joystream/storage-squid:${{ steps.extract_version.outputs.squid_version }}

@@ -9,7 +9,7 @@ build:
 	@npm run build
 
 build-docker:
-	@docker build . -t joystream/orion
+	@docker build . -t joystream/storage-squid
 
 serve:
 	@npx squid-graphql-server --subscriptions
@@ -18,6 +18,13 @@ migrate:
 	@npx squid-typeorm-migration apply
 
 dbgen:
+	@npx squid-typeorm-migration generate
+
+generate-migrations: 
+	@rm db/migrations/*-Data.js || true
+	@docker-compose down -v
+	@docker network create joystream_default || true
+	@docker-compose up -d squid_db
 	@npx squid-typeorm-migration generate
 
 codegen:
