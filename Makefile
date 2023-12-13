@@ -20,6 +20,13 @@ migrate:
 dbgen:
 	@npx squid-typeorm-migration generate
 
+generate-migrations: 
+	@rm db/migrations/*-Data.js || true
+	@docker-compose down -v
+	@docker network create joystream_default || true
+	@docker-compose up -d squid_db
+	@npx squid-typeorm-migration generate
+
 codegen:
 	@npm run generate:schema || true
 	@npx squid-typeorm-codegen
