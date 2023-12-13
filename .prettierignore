@@ -7,5 +7,4 @@ src/types
 src/model/generated
 db/migrations/*.js
 schema.graphql
-/scripts/orion-v1-migration/data
 /db/export
