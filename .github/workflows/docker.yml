@@ -48,7 +48,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           # Do not use local dir context to ensure we can build from a commit directly
-          # context: .
+          context: .
           file: Dockerfile
           push: false
           load: true
