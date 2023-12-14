@@ -5,12 +5,13 @@
     "node": ">=16"
   },
   "scripts": {
-    "generate:schema": "./scripts/generate-schema-file.sh",
+    "generate:schema": "./scripts/generate-input-schema-file.sh",
     "build": "npm run generate:schema; rm -rf lib && tsc",
     "lint": "eslint --ext .ts ./src",
     "format": "prettier --write .",
     "checks": "prettier --check . && npm run lint && make prepare && tsc --noEmit --pretty",
     "db:migrate": "npx squid-typeorm-migration apply",
+    "get-graphql-schema": "./scripts/get-graphql-schema.sh",
     "processor-start": "node -r dotenv-expand/config lib/processor.js",
     "graphql-server-start": "NODE_ENV=production patch-package --patch-dir assets/patches && squid-graphql-server --subscriptions",
     "postinstall": "patch-package --patch-dir assets/patches"
@@ -38,6 +39,7 @@
     "axios": "^1.2.1",
     "dotenv": "^16.0.3",
     "dotenv-expand": "^10.0.0",
+    "get-graphql-schema": "^2.1.2",
     "graphql-tools": "^8.3.11",
     "lodash": "^4.17.21",
     "patch-package": "^6.5.0",
