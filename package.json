@@ -13,7 +13,7 @@
     "db:migrate": "npx squid-typeorm-migration apply",
     "get-graphql-schema": "./scripts/get-graphql-schema.sh",
     "processor-start": "node -r dotenv-expand/config lib/processor.js",
-    "graphql-server-start": "NODE_ENV=production patch-package --patch-dir assets/patches && squid-graphql-server --subscriptions",
+    "graphql-server-start": "NODE_ENV=production ./scripts/start-graphql-server.sh",
     "postinstall": "patch-package --patch-dir assets/patches"
   },
   "overrides": {
@@ -27,6 +27,14 @@
   "dependencies": {
     "@joystream/js": "^1.4.0",
     "@openapitools/openapi-generator-cli": "^2.5.2",
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/auto-instrumentations-node": "0.37.0",
+    "@opentelemetry/core": "1.13.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.39.1",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.39.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.39.1",
+    "@opentelemetry/sdk-metrics": "1.13.0",
+    "@opentelemetry/sdk-node": "^0.39.1",
     "@polkadot/util-crypto": "9.5.1",
     "@subsquid/archive-registry": "^3.3.0",
     "@subsquid/graphql-server": "^4.3.1",

@@ -50,7 +50,7 @@ services:
       - .env
       - .docker.env
     environment:
-      - SQD_TRACE=authentication
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${TELEMETRY_ENDPOINT}
     depends_on:
       - squid_db
     volumes:
@@ -58,7 +58,7 @@ services:
         source: .
         target: /storage-squid
     working_dir: /storage-squid
-    command: ['make', 'serve']
+    command: ['npm', 'run', 'graphql-server-start']
     ports:
       - '${GQL_PORT}:${GQL_PORT}'
     networks:
