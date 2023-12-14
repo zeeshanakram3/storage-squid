@@ -1,3 +1,4 @@
+import { hexToString } from '@polkadot/util'
 import {
   DistributionBucketOperator,
   DistributionBucketOperatorMetadata,
@@ -123,7 +124,7 @@ export function createDataObjects(
       id: objectId.toString(),
       createdAt: new Date(block.timestamp || ''),
       isAccepted: false,
-      ipfsHash: objectParams.ipfsContentId,
+      ipfsHash: hexToString(objectParams.ipfsContentId),
       size: objectParams.size,
       stateBloatBond,
       storageBagId,
