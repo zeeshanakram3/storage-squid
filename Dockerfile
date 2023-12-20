@@ -39,6 +39,7 @@ ADD db db
 ADD assets assets
 ADD schema schema
 ADD scripts scripts
+ADD opentelemetry opentelemetry
 ENV PROCESSOR_PROMETHEUS_PORT 3000
 EXPOSE 3000
 EXPOSE 4000

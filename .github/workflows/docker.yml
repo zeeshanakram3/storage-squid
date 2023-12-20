@@ -38,16 +38,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      # docker/build-push-action doc:
-      # Be careful because any file mutation in the steps that precede the
-      # build step will be ignored, including processing of the .dockerignore file
-      # since the context is based on the Git reference. However, you can use
-      # the Path context using the context input alongside the actions/checkout action
-      # to remove this restriction.
       - name: Build storage-squid
         uses: docker/build-push-action@v3
         with:
-          # Do not use local dir context to ensure we can build from a commit directly
           context: .
           file: Dockerfile
           push: false
@@ -58,3 +51,8 @@ jobs:
         run: |
           docker image tag joystream/storage-squid:latest joystream/storage-squid:${{ steps.extract_version.outputs.squid_version }}
           docker push joystream/storage-squid:${{ steps.extract_version.outputs.squid_version }}
+
+      - name: Push storage-squid latest tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker push joystream/storage-squid:latest

@@ -11,9 +11,6 @@ build:
 build-docker:
 	@docker build . -t joystream/storage-squid
 
-serve:
-	@npx squid-graphql-server --subscriptions
-
 migrate:
 	@npx squid-typeorm-migration apply
 

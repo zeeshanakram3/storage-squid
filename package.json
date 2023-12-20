@@ -1,18 +1,19 @@
 {
   "name": "storage-squid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "engines": {
     "node": ">=16"
   },
   "scripts": {
-    "generate:schema": "./scripts/generate-schema-file.sh",
+    "generate:schema": "./scripts/generate-input-schema-file.sh",
     "build": "npm run generate:schema; rm -rf lib && tsc",
     "lint": "eslint --ext .ts ./src",
     "format": "prettier --write .",
     "checks": "prettier --check . && npm run lint && make prepare && tsc --noEmit --pretty",
     "db:migrate": "npx squid-typeorm-migration apply",
+    "get-graphql-schema": "./scripts/get-graphql-schema.sh",
     "processor-start": "node -r dotenv-expand/config lib/processor.js",
-    "graphql-server-start": "NODE_ENV=production patch-package --patch-dir assets/patches && squid-graphql-server --subscriptions",
+    "graphql-server-start": "./scripts/start-graphql-server.sh",
     "postinstall": "patch-package --patch-dir assets/patches"
   },
   "overrides": {
@@ -25,7 +26,14 @@
   },
   "dependencies": {
     "@joystream/js": "^1.4.0",
-    "@openapitools/openapi-generator-cli": "^2.5.2",
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/auto-instrumentations-node": "0.37.0",
+    "@opentelemetry/core": "1.13.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.39.1",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.39.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.39.1",
+    "@opentelemetry/sdk-metrics": "1.13.0",
+    "@opentelemetry/sdk-node": "^0.39.1",
     "@polkadot/util-crypto": "9.5.1",
     "@subsquid/archive-registry": "^3.3.0",
     "@subsquid/graphql-server": "^4.3.1",
@@ -33,11 +41,11 @@
     "@subsquid/substrate-processor": "^7.2.1",
     "@subsquid/typeorm-migration": "^1.2.2",
     "@subsquid/typeorm-store": "^1.2.4",
-    "ajv": "^6.11.0",
     "async-lock": "^1.3.1",
     "axios": "^1.2.1",
     "dotenv": "^16.0.3",
     "dotenv-expand": "^10.0.0",
+    "get-graphql-schema": "^2.1.2",
     "graphql-tools": "^8.3.11",
     "lodash": "^4.17.21",
     "patch-package": "^6.5.0",
