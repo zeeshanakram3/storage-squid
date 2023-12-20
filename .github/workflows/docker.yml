@@ -53,6 +53,6 @@ jobs:
           docker push joystream/storage-squid:${{ steps.extract_version.outputs.squid_version }}
 
       - name: Push storage-squid latest tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           docker push joystream/storage-squid:latest
