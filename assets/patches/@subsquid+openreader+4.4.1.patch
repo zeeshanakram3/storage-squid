@@ -1,0 +1,13 @@
+diff --git a/node_modules/@subsquid/openreader/lib/db.js b/node_modules/@subsquid/openreader/lib/db.js
+index c87884b..9a9801e 100644
+--- a/node_modules/@subsquid/openreader/lib/db.js
++++ b/node_modules/@subsquid/openreader/lib/db.js
+@@ -9,7 +9,7 @@ class PgDatabase {
+         this.client = client;
+     }
+     query(sql, parameters) {
+-        return this.client.query({ text: sql, rowMode: 'array' }, parameters)
++        return this.client.query({ text: sql, values: parameters, rowMode: 'array' })
+             .then(result => result.rows)
+             .catch((0, error_handling_1.withErrorContext)({ sql, parameters }));
+     }

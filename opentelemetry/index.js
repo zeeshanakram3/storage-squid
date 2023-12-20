@@ -15,6 +15,7 @@ const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumenta
 // See: https://github.com/Joystream/joystream/pull/4779#discussion_r1262515887
 const instrumentations = getNodeAutoInstrumentations({
   '@opentelemetry/instrumentation-dns': { enabled: false },
+  '@opentelemetry/instrumentation-pg': { enhancedDatabaseReporting: true },
 })
 
 const { NodeSDK } = require('@opentelemetry/sdk-node')
