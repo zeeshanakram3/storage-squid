@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-       - name: Build storage-squid
+      - name: Build storage-squid
         uses: docker/build-push-action@v3
         with:
           context: .
