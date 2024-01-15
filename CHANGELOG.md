@@ -1,3 +1,8 @@
+# 1.3.0
+
+- Disables processing of Hot/Un-finalized blocks by the processor.
+- Add `DataObjectDeletedEventData` event type.
+
 # 1.2.0
 
 - patched `@subsquid/openreader` to pass parameter values in 'queryConfig' object instead of passing as param to `pgClient.query` function.
