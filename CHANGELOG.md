@@ -1,3 +1,7 @@
+# 1.4.0
+
+- Created `SquidVersion` graphql entity schema and exposed query to fetch the current version of the storage squid package.
+
 # 1.3.0
 
 - Disables processing of Hot/Un-finalized blocks by the processor.
