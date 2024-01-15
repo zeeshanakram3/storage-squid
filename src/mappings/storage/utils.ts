@@ -1,7 +1,9 @@
 import { hexToString } from '@polkadot/util'
 import {
+  DataObjectDeletedEventData,
   DistributionBucketOperator,
   DistributionBucketOperatorMetadata,
+  Event,
   StorageBag,
   StorageBagOwner,
   StorageBagOwnerChannel,
@@ -21,6 +23,7 @@ import {
 } from '../../types/v1000'
 import { criticalError } from '../../utils/misc'
 import { EntityManagerOverlay, Flat, RepositoryOverlay } from '../../utils/overlay'
+import { genericEventFields } from '../utils'
 
 export function getDynamicBagId(bagId: DynamicBagIdType): string {
   if (bagId.__kind === 'Channel') {
@@ -164,12 +167,32 @@ export async function getOrCreateBag(
 
 export async function deleteDataObjects(
   overlay: EntityManagerOverlay,
+  block: Block,
+  indexInBlock: number,
+  extrinsicHash: string | undefined,
   objects: Flat<StorageDataObject>[]
 ) {
-  overlay.getRepository(StorageDataObject).remove(...objects)
+  for (const object of objects) {
+    // Add event for data object deletion
+    overlay.getRepository(Event).new({
+      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+      data: new DataObjectDeletedEventData({
+        dataObjectId: object.id,
+      }),
+    })
+
+    // Remove data object
+    overlay.getRepository(StorageDataObject).remove(object)
+  }
 }
 
-export async function deleteDataObjectsByIds(overlay: EntityManagerOverlay, ids: bigint[]) {
+export async function deleteDataObjectsByIds(
+  overlay: EntityManagerOverlay,
+  block: Block,
+  indexInBlock: number,
+  extrinsicHash: string | undefined,
+  ids: bigint[]
+) {
   const dataObjectRepository = overlay.getRepository(StorageDataObject)
   const subtitlesRepository = overlay.getRepository(VideoSubtitle)
   const objects = await Promise.all(
@@ -181,5 +204,5 @@ export async function deleteDataObjectsByIds(overlay: EntityManagerOverlay, ids:
   )
 
   subtitlesRepository.remove(...currentSubtitles.flat())
-  await deleteDataObjects(overlay, objects)
+  await deleteDataObjects(overlay, block, indexInBlock, extrinsicHash, objects)
 }

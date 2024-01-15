@@ -239,6 +239,9 @@ export async function processDynamicBagCreatedEvent({
 
 export async function processDynamicBagDeletedEvent({
   overlay,
+  block,
+  indexInBlock,
+  extrinsicHash,
   event,
   eventDecoder,
 }: EventHandlerContext<'Storage.DynamicBagDeleted'>): Promise<void> {
@@ -255,7 +258,7 @@ export async function processDynamicBagDeletedEvent({
     .getManyByRelation('storageBagId', dynBagId)
   overlay.getRepository(StorageBucketBag).remove(...bagStorageBucketRelations)
   overlay.getRepository(DistributionBucketBag).remove(...bagDistributionBucketRelations)
-  await deleteDataObjects(overlay, objects)
+  await deleteDataObjects(overlay, block, indexInBlock, extrinsicHash, objects)
   overlay.getRepository(StorageBag).remove(dynBagId)
 }
 
@@ -284,6 +287,8 @@ export async function processDataObjectsUploadedEvent({
 export async function processDataObjectsUpdatedEvent({
   overlay,
   block,
+  indexInBlock,
+  extrinsicHash,
   event,
   eventDecoder,
 }: EventHandlerContext<'Storage.DataObjectsUpdated'>): Promise<void> {
@@ -302,7 +307,7 @@ export async function processDataObjectsUpdatedEvent({
     stateBloatBond,
     uploadedObjectIds
   )
-  await deleteDataObjectsByIds(overlay, objectsToRemoveIds)
+  await deleteDataObjectsByIds(overlay, block, indexInBlock, extrinsicHash, objectsToRemoveIds)
 }
 
 export async function processPendingDataObjectsAcceptedEvent({
@@ -339,11 +344,14 @@ export async function processDataObjectsMovedEvent({
 
 export async function processDataObjectsDeletedEvent({
   overlay,
+  block,
+  indexInBlock,
+  extrinsicHash,
   event,
   eventDecoder,
 }: EventHandlerContext<'Storage.DataObjectsDeleted'>): Promise<void> {
   const [, , dataObjectIds] = eventDecoder.v1000.decode(event)
-  await deleteDataObjectsByIds(overlay, dataObjectIds)
+  await deleteDataObjectsByIds(overlay, block, indexInBlock, extrinsicHash, dataObjectIds)
 }
 
 // DISTRIBUTION FAMILY EVENTS

@@ -15,9 +15,7 @@ ADD joystream.jsonl .
 ADD src src
 ADD schema schema
 ADD scripts scripts
-RUN npx squid-typeorm-codegen
 RUN npx squid-substrate-typegen typegen.json
-RUN npm run generate:schema || true 
 RUN	npx squid-typeorm-codegen
 RUN npm run build
 

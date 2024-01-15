@@ -18,7 +18,7 @@ type Event @entity {
   data: EventData!
 }
 
-union EventData = MetaprotocolTransactionStatusEventData
+union EventData = MetaprotocolTransactionStatusEventData | DataObjectDeletedEventData
 
 type MetaprotocolTransactionResultOK {
   phantom: Int
@@ -35,4 +35,9 @@ union MetaprotocolTransactionResult =
 type MetaprotocolTransactionStatusEventData {
   "The result of metaprotocol action"
   result: MetaprotocolTransactionResult!
+}
+
+type DataObjectDeletedEventData {
+  "Runtime ID of deleted the deleted object"
+  dataObjectId: ID!
 }
