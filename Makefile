@@ -19,10 +19,15 @@ dbgen:
 
 generate-migrations: 
 	@rm db/migrations/*-Data.js || true
-	@docker-compose down -v
-	@docker network create joystream_default || true
-	@docker-compose up -d squid_db
-	@npx squid-typeorm-migration generate
+	@docker run -d --name temp_migrations_db \
+		-e POSTGRES_DB=squid \
+		-e POSTGRES_HOST_AUTH_METHOD=trust \
+		-v temp_migrations_db_volume:/var/lib/postgresql/data \
+		-v ./db/postgres.conf:/etc/postgresql/postgresql.conf \
+		-p 5555:5555 postgres:14 postgres -p 5555 || true
+	@export DB_PORT=5555 && sleep 5 && npx squid-typeorm-migration generate
+	@docker rm temp_migrations_db -vf || true
+	@docker volume rm temp_migrations_db_volume || true
 
 codegen:
 	@npm run generate:schema || true
