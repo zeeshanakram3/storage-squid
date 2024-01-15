@@ -1,8 +1,9 @@
-module.exports = class Data1702466795502 {
-    name = 'Data1702466795502'
+module.exports = class Data1705345480233 {
+    name = 'Data1705345480233'
 
     async up(db) {
         await db.query(`CREATE TABLE "next_entity_id" ("entity_name" character varying NOT NULL, "next_id" bigint NOT NULL, CONSTRAINT "PK_09a3b40db622a65096e7344d7ae" PRIMARY KEY ("entity_name"))`)
+        await db.query(`CREATE TABLE "squid_version" ("id" character varying NOT NULL, "version" text NOT NULL, CONSTRAINT "PK_97d8a06dfa602575b79a623734d" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "event" ("id" character varying NOT NULL, "in_block" integer NOT NULL, "in_extrinsic" text, "index_in_block" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "data" jsonb NOT NULL, CONSTRAINT "PK_30c2f3bbaf6d34a55f8ae6e4614" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_8f3f220c4e717207d841d4e6d4" ON "event" ("in_extrinsic") `)
         await db.query(`CREATE TABLE "storage_bucket" ("id" character varying NOT NULL, "operator_status" jsonb NOT NULL, "accepting_new_bags" boolean NOT NULL, "data_objects_size_limit" numeric NOT NULL, "data_object_count_limit" numeric NOT NULL, "data_objects_count" numeric NOT NULL, "data_objects_size" numeric NOT NULL, CONSTRAINT "PK_97cd0c3fe7f51e34216822e5f91" PRIMARY KEY ("id"))`)
@@ -44,6 +45,7 @@ module.exports = class Data1702466795502 {
 
     async down(db) {
         await db.query(`DROP TABLE "next_entity_id"`)
+        await db.query(`DROP TABLE "squid_version"`)
         await db.query(`DROP TABLE "event"`)
         await db.query(`DROP INDEX "public"."IDX_8f3f220c4e717207d841d4e6d4"`)
         await db.query(`DROP TABLE "storage_bucket"`)
