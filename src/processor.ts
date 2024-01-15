@@ -153,35 +153,38 @@ async function processEvent<EventName extends EventNames>(
   await eventHandler({ block, overlay, event, eventDecoder, indexInBlock, extrinsicHash })
 }
 
-PROCESSOR.run(new TypeormDatabase({ isolationLevel: 'READ COMMITTED' }), async (ctx) => {
-  Logger.set(ctx.log)
+PROCESSOR.run(
+  new TypeormDatabase({ isolationLevel: 'READ COMMITTED', supportHotBlocks: false }),
+  async (ctx) => {
+    Logger.set(ctx.log)
 
-  const overlay = await EntityManagerOverlay.create(ctx.store)
+    const overlay = await EntityManagerOverlay.create(ctx.store)
 
-  for (const block of ctx.blocks) {
-    for (const event of block.events) {
-      if (event.name !== '*') {
-        ctx.log.info(`Processing ${event.name} event in block ${block.header.height}...`)
+    for (const block of ctx.blocks) {
+      for (const event of block.events) {
+        if (event.name !== '*') {
+          ctx.log.info(`Processing ${event.name} event in block ${block.header.height}...`)
 
-        await processEvent(
-          event.name as EventNames,
-          block.header,
-          event.index,
-          event.extrinsic?.hash,
-          event,
-          overlay
-        )
-        // Update database if the number of cached entities exceeded MAX_CACHED_ENTITIES
-        if (overlay.totalCacheSize() > maxCachedEntities) {
-          ctx.log.info(
-            `Max memory cache size of ${maxCachedEntities} exceeded, updating database...`
+          await processEvent(
+            event.name as EventNames,
+            block.header,
+            event.index,
+            event.extrinsic?.hash,
+            event,
+            overlay
           )
-          await overlay.updateDatabase()
+          // Update database if the number of cached entities exceeded MAX_CACHED_ENTITIES
+          if (overlay.totalCacheSize() > maxCachedEntities) {
+            ctx.log.info(
+              `Max memory cache size of ${maxCachedEntities} exceeded, updating database...`
+            )
+            await overlay.updateDatabase()
+          }
         }
       }
     }
-  }
 
-  ctx.log.info(`Saving database updates...`)
-  await overlay.updateDatabase()
-})
+    ctx.log.info(`Saving database updates...`)
+    await overlay.updateDatabase()
+  }
+)

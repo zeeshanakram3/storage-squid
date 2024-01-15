@@ -10,7 +10,7 @@ npx squid-graphql-server &
 # Wait for 5 seconds to allow the server to start
 sleep 5
 
-# Get the GraphQL schema and output it to a file
+# Get the GraphQL schema and output it
 ./node_modules/get-graphql-schema/dist/index.js http://localhost:${GQL_PORT}/graphql
 
 # Find the PID of the squid-graphql-server
