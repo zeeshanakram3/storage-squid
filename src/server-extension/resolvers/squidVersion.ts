@@ -27,10 +27,6 @@ export class SquidVersion {
 
 @Resolver()
 export class SquidVersionResolver {
-  private version: string
-
-  constructor() {}
-
   @Query(() => SquidVersion)
   async squidVersion(): Promise<SquidVersion> {
     // Get package version
