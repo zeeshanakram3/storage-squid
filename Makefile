@@ -17,7 +17,7 @@ migrate:
 dbgen:
 	@npx squid-typeorm-migration generate
 
-generate-migrations: 
+generate-migrations:
 	@rm db/migrations/*-Data.js || true
 	@docker run -d --name temp_migrations_db \
 		-e POSTGRES_DB=squid \
@@ -40,9 +40,9 @@ prepare: install typegen codegen build
 
 up-squid:
 	@docker network create joystream_default || true
-	@docker-compose up -d
+	@docker compose up -d
 
 down-squid:
-	@docker-compose down -v
+	@docker compose down -v
 
 .PHONY: build serve process migrate codegen typegen prepare up-squid down-squid
