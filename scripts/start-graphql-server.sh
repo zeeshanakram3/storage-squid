@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # docker entrypoint fot graphql-server, to allow running with telemetry
 if [[ "$TELEMETRY_ENABLED" = "yes" ]]; then
