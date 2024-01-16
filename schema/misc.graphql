@@ -1,4 +1,0 @@
-type SquidVersion @entity {
-  "Current version of the storage squid package"
-  version: String!
-}
