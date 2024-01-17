@@ -1,3 +1,7 @@
+# 1.4.1
+
+- **FIX**: Install `bash` in Dockerfile, since it does not come pre-installed in `node:18-alpine` image.
+
 # 1.4.0
 
 - Created `SquidVersion` graphql entity schema and exposed query to fetch the current version of the storage squid package.
