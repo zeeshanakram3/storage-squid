@@ -1,3 +1,7 @@
+# 1.4.2
+
+- **FIX**: Bump Subsquid processor (`@subsquid/substrate-processor`) version to include fix for switching to RPC when processing unfinalized blocks.
+
 # 1.4.1
 
 - **FIX**: Install `bash` in Dockerfile, since it does not come pre-installed in `node:18-alpine` image.
