@@ -1,3 +1,7 @@
+# 1.4.3
+
+- Allow configuring RPC rate limit via `RPC_RATE_LIMIT` environment variable.
+
 # 1.4.2
 
 - **FIX**: Bump Subsquid processor (`@subsquid/substrate-processor`) version to include fix for switching to RPC when processing unfinalized blocks.

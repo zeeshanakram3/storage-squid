@@ -117,6 +117,7 @@ const eventNames = Object.keys(eventHandlers)
 const archiveUrl = process.env.ARCHIVE_GATEWAY_URL
 
 const rpcURL = process.env.RPC_ENDPOINT || 'http://localhost:9944/'
+const rpcRateLimit = parseInt(process.env.RPC_RATE_LIMIT || '10')
 
 const maxCachedEntities = parseInt(process.env.MAX_CACHED_ENTITIES || '1000')
 
@@ -124,7 +125,7 @@ PROCESSOR.setDataSource({
   ...(archiveUrl ? { archive: archiveUrl } : {}),
   chain: {
     url: rpcURL,
-    rateLimit: 10,
+    rateLimit: rpcRateLimit,
   },
 }).addEvent({
   name: eventNames,
