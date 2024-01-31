@@ -1,3 +1,10 @@
+
+# 1.4.4
+
+- Modified script to save graphql schema in `./generated/schema.graphql` file so that it can be fetched directly, previously the schema was generated and returned by spinning up the graphql server.
+- **FIX**: Start the postgres DB in `generate-graphql-schema.sh` script.
+
+
 # 1.4.3
 
 - Allow configuring RPC rate limit via `RPC_RATE_LIMIT` environment variable.

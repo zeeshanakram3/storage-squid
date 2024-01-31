@@ -7,6 +7,7 @@ install:
 
 build:
 	@npm run build
+	@npm run generate-graphql-schema
 
 build-docker:
 	@docker build . -t joystream/storage-squid
@@ -30,7 +31,7 @@ generate-migrations:
 	@docker volume rm temp_migrations_db_volume || true
 
 codegen:
-	@npm run generate:schema || true
+	@npm run generate:input-schema || true
 	@npx squid-typeorm-codegen
 
 typegen:
