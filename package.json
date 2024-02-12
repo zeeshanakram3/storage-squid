@@ -1,17 +1,18 @@
 {
   "name": "storage-squid",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "engines": {
     "node": ">=16"
   },
   "scripts": {
-    "generate:schema": "./scripts/generate-input-schema-file.sh",
-    "build": "npm run generate:schema; rm -rf lib && tsc",
+    "generate:input-schema": "./scripts/generate-input-schema-file.sh",
+    "build": "npm run generate:input-schema; rm -rf lib && tsc",
     "lint": "eslint --ext .ts ./src",
     "format": "prettier --write .",
     "checks": "prettier --check . && npm run lint && make prepare && tsc --noEmit --pretty",
     "db:migrate": "npx squid-typeorm-migration apply",
-    "get-graphql-schema": "./scripts/get-graphql-schema.sh",
+    "get-graphql-schema": "cat ./generated/schema.graphql",
+    "generate-graphql-schema": "./scripts/generate-graphql-schema.sh",
     "processor-start": "node -r dotenv-expand/config lib/processor.js",
     "graphql-server-start": "./scripts/start-graphql-server.sh",
     "postinstall": "patch-package --patch-dir assets/patches"

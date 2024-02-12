@@ -1,4 +1,5 @@
 FROM node:18-alpine AS node
+RUN apk add bash
 
 FROM node AS node-with-gyp
 RUN apk add g++ make python3
@@ -27,7 +28,6 @@ ADD assets assets
 RUN npm ci --omit=dev
 
 FROM node AS squid
-RUN apk add bash
 WORKDIR /squid
 COPY --from=deps /squid/package.json .
 COPY --from=deps /squid/package-lock.json .
@@ -38,6 +38,7 @@ ADD db db
 ADD assets assets
 ADD schema schema
 ADD scripts scripts
+ADD generated generated
 ADD opentelemetry opentelemetry
 ENV PROCESSOR_PROMETHEUS_PORT 3000
 EXPOSE 3000
