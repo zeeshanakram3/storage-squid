@@ -45,4 +45,7 @@ docker logs squid_processor -f 2>&1 | grep -E "\"level\":2|\"level\":3|\"level\"
 
 # You can also use other docker logs options like --follow, --tail etc
 docker logs squid_processor --follow --tail 100 2>&1 | grep -E "\"level\":2|\"level\":3|\"level\":4|\"level\":5" 
+
+# In case you only want to see the logs of a specific logger namespace e.g sqd:processor, you can use the following command.
+docker logs squid_processor -f 2>&1 | grep -E "\"sqd:processor"\" 
 ```
