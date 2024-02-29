@@ -221,17 +221,27 @@ export async function processSetNodeOperationalStatusMessage(
   indexInBlock: number,
   extrinsicHash: string | undefined,
   workingGroup: 'storageWorkingGroup' | 'distributionWorkingGroup',
-  actorContext: 'lead' | 'worker',
+  actor: Worker | undefined, // worker who sent the message, undefined if it's a lead
   meta: ISetNodeOperationalStatus
 ): Promise<void> {
-  const workerId = Number(meta.workerId)
-  const bucketId = String(meta.bucketId)
+  let workerId: bigint
+  const bucketId = meta.bucketId || ''
 
-  if ((await overlay.getRepository(Worker).getById(`${workingGroup}-${workerId}`)) === undefined) {
-    return invalidMetadata(
-      SetNodeOperationalStatus,
-      `The worker ${workerId} does not exist in the ${workingGroup} working group`
-    )
+  // Get the bucket's worker id
+  if (actor) {
+    workerId = actor.runtimeId
+  } else {
+    const maybeWorker = await overlay
+      .getRepository(Worker)
+      .getById(`${workingGroup}-${meta.workerId}`)
+
+    if (!maybeWorker) {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The worker ${meta.workerId} does not exist in the ${workingGroup} working group`
+      )
+    }
+    workerId = maybeWorker.runtimeId
   }
 
   // Update the operational status of Storage node
@@ -247,7 +257,8 @@ export async function processSetNodeOperationalStatusMessage(
         SetNodeOperationalStatus,
         `The storage bucket ${bucketId} is not active`
       )
-    } else if (storageBucket.operatorStatus.workerId !== workerId) {
+      // If the actor is a worker, check if the worker is the operator of the storage bucket
+    } else if (actor && storageBucket.operatorStatus.workerId !== actor.runtimeId) {
       return invalidMetadata(
         SetNodeOperationalStatus,
         `The worker ${workerId} is not the operator of the storage bucket ${bucketId}`
@@ -263,7 +274,7 @@ export async function processSetNodeOperationalStatusMessage(
 
     if (isSet(meta.operationalStatus)) {
       metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
-        actorContext,
+        actor ? 'worker' : 'lead',
         metadataEntity.nodeOperationalStatus,
         meta.operationalStatus
       )
@@ -295,6 +306,11 @@ export async function processSetNodeOperationalStatusMessage(
         SetNodeOperationalStatus,
         `The distribution bucket operator ${distributionOperatorId} does not exist`
       )
+    } else if (actor && operator.workerId !== actor.runtimeId) {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The worker ${workerId} is not the operator of the distribution bucket ${bucketId}`
+      )
     }
 
     // create metadata entity if it does not exist already
@@ -309,7 +325,7 @@ export async function processSetNodeOperationalStatusMessage(
 
     if (isSet(meta.operationalStatus)) {
       metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
-        actorContext,
+        actor ? 'worker' : 'lead',
         metadataEntity.nodeOperationalStatus,
         meta.operationalStatus
       )

@@ -30,6 +30,7 @@ export async function processWorkingGroupsOpeningFilledEvent({
     const workerId = getWorkerIdByApplicationId(applicationId)
     overlay.getRepository(Worker).new({
       id: `${toLowerFirstLetter(workingGroupName)}-${workerId}`,
+      runtimeId: workerId,
     })
   })
 }
@@ -63,84 +64,61 @@ export async function processWorkingGroupsWorkerTerminatedOrExitedEvent({
   overlay.getRepository(Worker).remove(`${toLowerFirstLetter(workingGroupName)}-${workerId}`)
 }
 
-export async function processStorageWorkingGroupLeadRemarkedEvent({
+export async function processWorkingGroupsLeadRemarkedEvent({
   overlay,
   block,
   event,
   indexInBlock,
   extrinsicHash,
   eventDecoder,
-}: EventHandlerContext<'StorageWorkingGroup.LeadRemarked'>) {
+}: EventHandlerContext<
+  'StorageWorkingGroup.LeadRemarked' | 'DistributionWorkingGroup.LeadRemarked'
+>) {
   const [metadataBytes] = eventDecoder.v1000.decode(event)
 
+  // Get the working group name
+  const [workingGroup] = event.name.split('.')
+  const workingGroupName = toLowerFirstLetter(workingGroup)
+
   await applyWorkingGroupsRemark(
     overlay,
     block,
     indexInBlock,
     extrinsicHash,
-    'storageWorkingGroup',
-    'lead',
+    workingGroupName as 'storageWorkingGroup' | 'distributionWorkingGroup',
+    undefined,
     metadataBytes
   )
 }
 
-export async function processStorageWorkingGroupWorkerRemarkedEvent({
+export async function processWorkingGroupsWorkerRemarkedEvent({
   overlay,
   block,
   event,
   indexInBlock,
   extrinsicHash,
   eventDecoder,
-}: EventHandlerContext<'StorageWorkingGroup.WorkerRemarked'>) {
-  const [, metadataBytes] = eventDecoder.v1000.decode(event)
+}: EventHandlerContext<
+  'StorageWorkingGroup.WorkerRemarked' | 'DistributionWorkingGroup.WorkerRemarked'
+>) {
+  const [workerId, metadataBytes] = eventDecoder.v1000.decode(event)
+
+  // Get the working group name
+  const [workingGroup] = event.name.split('.')
+  const workingGroupName = toLowerFirstLetter(workingGroup)
+
+  // Get the worker
+  const worker = await overlay
+    .getRepository(Worker)
+    .getByIdOrFail(`${workingGroupName}-${workerId}`)
 
   await applyWorkingGroupsRemark(
     overlay,
     block,
     indexInBlock,
     extrinsicHash,
-    'storageWorkingGroup',
-    'worker',
-    metadataBytes
-  )
-}
-
-export async function processDistributionWorkingGroupLeadRemarkedEvent({
-  overlay,
-  block,
-  event,
-  indexInBlock,
-  extrinsicHash,
-  eventDecoder,
-}: EventHandlerContext<'DistributionWorkingGroup.LeadRemarked'>) {
-  const [metadataBytes] = eventDecoder.v1000.decode(event)
-  await applyWorkingGroupsRemark(
-    overlay,
-    block,
-    indexInBlock,
-    extrinsicHash,
-    'distributionWorkingGroup',
-    'lead',
-    metadataBytes
-  )
-}
-
-export async function processDistributionWorkingGroupWorkerRemarkedEvent({
-  overlay,
-  block,
-  event,
-  indexInBlock,
-  extrinsicHash,
-  eventDecoder,
-}: EventHandlerContext<'DistributionWorkingGroup.WorkerRemarked'>) {
-  const [, metadataBytes] = eventDecoder.v1000.decode(event)
-  await applyWorkingGroupsRemark(
-    overlay,
-    block,
-    indexInBlock,
-    extrinsicHash,
-    'distributionWorkingGroup',
-    'worker',
+    workingGroupName as 'storageWorkingGroup' | 'distributionWorkingGroup',
+    worker,
     metadataBytes
   )
 }
@@ -151,7 +129,7 @@ async function applyWorkingGroupsRemark(
   indexInBlock: number,
   extrinsicHash: string | undefined,
   workingGroup: 'storageWorkingGroup' | 'distributionWorkingGroup',
-  actorContext: 'lead' | 'worker',
+  actor: Worker | undefined,
   metadataBytes: string
 ): Promise<void> {
   const metadata = deserializeMetadataStr(RemarkMetadataAction, metadataBytes)
@@ -163,7 +141,7 @@ async function applyWorkingGroupsRemark(
       indexInBlock,
       extrinsicHash,
       workingGroup,
-      actorContext,
+      actor,
       metadata.setNodeOperationalStatus
     )
   } else {

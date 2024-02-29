@@ -41,11 +41,9 @@ import {
   processVoucherChangedEvent,
 } from './mappings/storage'
 import {
-  processDistributionWorkingGroupLeadRemarkedEvent,
-  processDistributionWorkingGroupWorkerRemarkedEvent,
-  processStorageWorkingGroupLeadRemarkedEvent,
-  processStorageWorkingGroupWorkerRemarkedEvent,
+  processWorkingGroupsLeadRemarkedEvent,
   processWorkingGroupsOpeningFilledEvent,
+  processWorkingGroupsWorkerRemarkedEvent,
   processWorkingGroupsWorkerTerminatedOrExitedEvent,
 } from './mappings/workingGroups'
 import { events } from './types'
@@ -125,14 +123,14 @@ const eventHandlers: EventHandlers = {
   'StorageWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'StorageWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'StorageWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'StorageWorkingGroup.LeadRemarked': processStorageWorkingGroupLeadRemarkedEvent,
-  'StorageWorkingGroup.WorkerRemarked': processStorageWorkingGroupWorkerRemarkedEvent,
+  'StorageWorkingGroup.LeadRemarked': processWorkingGroupsLeadRemarkedEvent,
+  'StorageWorkingGroup.WorkerRemarked': processWorkingGroupsWorkerRemarkedEvent,
   'DistributionWorkingGroup.OpeningFilled': processWorkingGroupsOpeningFilledEvent,
   'DistributionWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'DistributionWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'DistributionWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'DistributionWorkingGroup.LeadRemarked': processDistributionWorkingGroupLeadRemarkedEvent,
-  'DistributionWorkingGroup.WorkerRemarked': processDistributionWorkingGroupWorkerRemarkedEvent,
+  'DistributionWorkingGroup.LeadRemarked': processWorkingGroupsLeadRemarkedEvent,
+  'DistributionWorkingGroup.WorkerRemarked': processWorkingGroupsWorkerRemarkedEvent,
 }
 
 const eventNames = Object.keys(eventHandlers)
