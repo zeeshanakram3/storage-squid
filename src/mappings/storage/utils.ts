@@ -1,8 +1,11 @@
+import { ISetNodeOperationalStatus, SetNodeOperationalStatus } from '@joystream/metadata-protobuf'
+import { isSet } from '@joystream/metadata-protobuf/utils'
 import { hexToString } from '@polkadot/util'
 import {
   DataObjectDeletedEventData,
   DistributionBucketOperator,
   DistributionBucketOperatorMetadata,
+  DistributionNodeOperationalStatusSetEvent,
   Event,
   StorageBag,
   StorageBagOwner,
@@ -10,8 +13,12 @@ import {
   StorageBagOwnerCouncil,
   StorageBagOwnerMember,
   StorageBagOwnerWorkingGroup,
+  StorageBucket,
+  StorageBucketOperatorMetadata,
   StorageDataObject,
+  StorageNodeOperationalStatusSetEvent,
   VideoSubtitle,
+  Worker,
 } from '../../model'
 import { Block } from '../../processor'
 import {
@@ -23,7 +30,8 @@ import {
 } from '../../types/v1000'
 import { criticalError } from '../../utils/misc'
 import { EntityManagerOverlay, Flat, RepositoryOverlay } from '../../utils/overlay'
-import { genericEventFields } from '../utils'
+import { genericEventFields, invalidMetadata } from '../utils'
+import { processNodeOperationalStatusMetadata } from './metadata'
 
 export function getDynamicBagId(bagId: DynamicBagIdType): string {
   if (bagId.__kind === 'Channel') {
@@ -205,4 +213,119 @@ export async function deleteDataObjectsByIds(
 
   subtitlesRepository.remove(...currentSubtitles.flat())
   await deleteDataObjects(overlay, block, indexInBlock, extrinsicHash, objects)
+}
+
+export async function processSetNodeOperationalStatusMessage(
+  overlay: EntityManagerOverlay,
+  block: Block,
+  indexInBlock: number,
+  extrinsicHash: string | undefined,
+  workingGroup: 'storageWorkingGroup' | 'distributionWorkingGroup',
+  actorContext: 'lead' | 'worker',
+  meta: ISetNodeOperationalStatus
+): Promise<void> {
+  const workerId = Number(meta.workerId)
+  const bucketId = String(meta.bucketId)
+
+  if ((await overlay.getRepository(Worker).getById(`${workingGroup}-${workerId}`)) === undefined) {
+    return invalidMetadata(
+      SetNodeOperationalStatus,
+      `The worker ${workerId} does not exist in the ${workingGroup} working group`
+    )
+  }
+
+  // Update the operational status of Storage node
+  if (workingGroup === 'storageWorkingGroup') {
+    const storageBucket = await overlay.getRepository(StorageBucket).getById(bucketId)
+    if (!storageBucket) {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The storage bucket ${bucketId} does not exist`
+      )
+    } else if (storageBucket.operatorStatus.isTypeOf !== 'StorageBucketOperatorStatusActive') {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The storage bucket ${bucketId} is not active`
+      )
+    } else if (storageBucket.operatorStatus.workerId !== workerId) {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The worker ${workerId} is not the operator of the storage bucket ${bucketId}`
+      )
+    }
+
+    // create metadata entity if it does not exist already
+    const metadataEntity =
+      (await overlay.getRepository(StorageBucketOperatorMetadata).getById(bucketId)) ||
+      overlay
+        .getRepository(StorageBucketOperatorMetadata)
+        .new({ id: bucketId, storageBucketId: bucketId })
+
+    if (isSet(meta.operationalStatus)) {
+      metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
+        actorContext,
+        metadataEntity.nodeOperationalStatus,
+        meta.operationalStatus
+      )
+    }
+
+    // event processing
+
+    const operationalStatusSetEvent = new StorageNodeOperationalStatusSetEvent({
+      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+      storageBucket: storageBucket.id,
+      operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
+    })
+
+    overlay.getRepository(Event).new({
+      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+      data: operationalStatusSetEvent,
+    })
+  }
+
+  // Update the operational status of Distribution node
+  if (workingGroup === 'distributionWorkingGroup') {
+    const distributionOperatorId = `${bucketId}-${workerId}`
+    const operator = await overlay
+      .getRepository(DistributionBucketOperator)
+      .getById(distributionOperatorId)
+
+    if (!operator) {
+      return invalidMetadata(
+        SetNodeOperationalStatus,
+        `The distribution bucket operator ${distributionOperatorId} does not exist`
+      )
+    }
+
+    // create metadata entity if it does not exist already
+    const metadataEntity =
+      (await overlay
+        .getRepository(DistributionBucketOperatorMetadata)
+        .getById(distributionOperatorId)) ||
+      overlay.getRepository(DistributionBucketOperatorMetadata).new({
+        id: distributionOperatorId,
+        distirbutionBucketOperatorId: distributionOperatorId,
+      })
+
+    if (isSet(meta.operationalStatus)) {
+      metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
+        actorContext,
+        metadataEntity.nodeOperationalStatus,
+        meta.operationalStatus
+      )
+    }
+
+    // event processing
+
+    const operationalStatusSetEvent = new DistributionNodeOperationalStatusSetEvent({
+      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+      bucketOperator: operator.id,
+      operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
+    })
+
+    overlay.getRepository(Event).new({
+      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+      data: operationalStatusSetEvent,
+    })
+  }
 }

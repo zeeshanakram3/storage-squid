@@ -40,6 +40,14 @@ import {
   processStorageOperatorMetadataSetEvent,
   processVoucherChangedEvent,
 } from './mappings/storage'
+import {
+  processDistributionWorkingGroupLeadRemarkedEvent,
+  processDistributionWorkingGroupWorkerRemarkedEvent,
+  processStorageWorkingGroupLeadRemarkedEvent,
+  processStorageWorkingGroupWorkerRemarkedEvent,
+  processWorkingGroupsOpeningFilledEvent,
+  processWorkingGroupsWorkerTerminatedOrExitedEvent,
+} from './mappings/workingGroups'
 import { events } from './types'
 import { EntityManagerOverlay } from './utils/overlay'
 
@@ -57,7 +65,10 @@ type MapModuleEvents<Module extends keyof typeof events> = {
     string as `${Capitalize<Module>}.${Capitalize<Event>}`]: typeof events[Module][Event]
 }
 
-type EventsMap = MapModuleEvents<'content'> & MapModuleEvents<'storage'>
+type EventsMap = MapModuleEvents<'content'> &
+  MapModuleEvents<'storage'> &
+  MapModuleEvents<'storageWorkingGroup'> &
+  MapModuleEvents<'distributionWorkingGroup'>
 type EventNames = keyof EventsMap
 
 export type EventHandlerContext<EventName extends EventNames> = {
@@ -110,6 +121,18 @@ const eventHandlers: EventHandlers = {
   'Storage.DistributionBucketFamilyCreated': processDistributionBucketFamilyCreatedEvent,
   'Storage.DistributionBucketFamilyMetadataSet': processDistributionBucketFamilyMetadataSetEvent,
   'Storage.DistributionBucketFamilyDeleted': processDistributionBucketFamilyDeletedEvent,
+  'StorageWorkingGroup.OpeningFilled': processWorkingGroupsOpeningFilledEvent,
+  'StorageWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'StorageWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'StorageWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'StorageWorkingGroup.LeadRemarked': processStorageWorkingGroupLeadRemarkedEvent,
+  'StorageWorkingGroup.WorkerRemarked': processStorageWorkingGroupWorkerRemarkedEvent,
+  'DistributionWorkingGroup.OpeningFilled': processWorkingGroupsOpeningFilledEvent,
+  'DistributionWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'DistributionWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'DistributionWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
+  'DistributionWorkingGroup.LeadRemarked': processDistributionWorkingGroupLeadRemarkedEvent,
+  'DistributionWorkingGroup.WorkerRemarked': processDistributionWorkingGroupWorkerRemarkedEvent,
 }
 
 const eventNames = Object.keys(eventHandlers)

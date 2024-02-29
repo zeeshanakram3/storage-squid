@@ -104,3 +104,8 @@ export function backwardCompatibleMetaID(block: Block, indexInBlock: number) {
 export function u8aToBytes(array?: Uint8Array | null): Bytes {
   return createType('Bytes', array ? u8aToHex(array) : '')
 }
+
+export function toLowerFirstLetter(str: string) {
+  if (!str) return '' // Return an empty string if str is falsy
+  return str.charAt(0).toLowerCase() + str.slice(1)
+}
