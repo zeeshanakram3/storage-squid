@@ -3,11 +3,11 @@ type StorageBucketOperatorStatusMissing {
 }
 
 type StorageBucketOperatorStatusInvited {
-  workerId: Int!
+  workerId: BigInt!
 }
 
 type StorageBucketOperatorStatusActive {
-  workerId: Int!
+  workerId: BigInt!
   transactorAccountId: String!
 }
 
@@ -300,7 +300,7 @@ type DistributionBucketOperator @entity {
   distributionBucket: DistributionBucket!
 
   "ID of the distribution group worker"
-  workerId: Int!
+  workerId: BigInt!
 
   "Current operator status"
   status: DistributionBucketOperatorStatus!
