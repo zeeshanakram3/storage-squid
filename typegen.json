@@ -41,24 +41,10 @@
       ]
     },
     "StorageWorkingGroup": {
-      "events": [
-        "WorkerRemarked",
-        "LeadRemarked",
-        "OpeningFilled",
-        "TerminatedWorker",
-        "TerminatedLeader",
-        "WorkerExited"
-      ]
+      "events": ["WorkerRemarked", "LeadRemarked"]
     },
     "DistributionWorkingGroup": {
-      "events": [
-        "WorkerRemarked",
-        "LeadRemarked",
-        "OpeningFilled",
-        "TerminatedWorker",
-        "TerminatedLeader",
-        "WorkerExited"
-      ]
+      "events": ["WorkerRemarked", "LeadRemarked"]
     }
   }
 }

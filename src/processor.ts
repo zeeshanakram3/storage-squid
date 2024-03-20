@@ -42,9 +42,7 @@ import {
 } from './mappings/storage'
 import {
   processWorkingGroupsLeadRemarkedEvent,
-  processWorkingGroupsOpeningFilledEvent,
   processWorkingGroupsWorkerRemarkedEvent,
-  processWorkingGroupsWorkerTerminatedOrExitedEvent,
 } from './mappings/workingGroups'
 import { events } from './types'
 import { EntityManagerOverlay } from './utils/overlay'
@@ -119,16 +117,8 @@ const eventHandlers: EventHandlers = {
   'Storage.DistributionBucketFamilyCreated': processDistributionBucketFamilyCreatedEvent,
   'Storage.DistributionBucketFamilyMetadataSet': processDistributionBucketFamilyMetadataSetEvent,
   'Storage.DistributionBucketFamilyDeleted': processDistributionBucketFamilyDeletedEvent,
-  'StorageWorkingGroup.OpeningFilled': processWorkingGroupsOpeningFilledEvent,
-  'StorageWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'StorageWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'StorageWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'StorageWorkingGroup.LeadRemarked': processWorkingGroupsLeadRemarkedEvent,
   'StorageWorkingGroup.WorkerRemarked': processWorkingGroupsWorkerRemarkedEvent,
-  'DistributionWorkingGroup.OpeningFilled': processWorkingGroupsOpeningFilledEvent,
-  'DistributionWorkingGroup.TerminatedWorker': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'DistributionWorkingGroup.TerminatedLeader': processWorkingGroupsWorkerTerminatedOrExitedEvent,
-  'DistributionWorkingGroup.WorkerExited': processWorkingGroupsWorkerTerminatedOrExitedEvent,
   'DistributionWorkingGroup.LeadRemarked': processWorkingGroupsLeadRemarkedEvent,
   'DistributionWorkingGroup.WorkerRemarked': processWorkingGroupsWorkerRemarkedEvent,
 }

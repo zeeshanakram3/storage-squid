@@ -1,8 +1,0 @@
-# Working Groups
-type Worker @entity {
-  "Worker id ({workingGroupName}-{workerId})"
-  id: ID!
-
-  "WorkerId in specific working group module"
-  runtimeId: BigInt!
-}

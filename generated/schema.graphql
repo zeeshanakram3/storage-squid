@@ -1181,10 +1181,6 @@ type Query {
   distributionBucketFamilyById(id: String!): DistributionBucketFamily
   distributionBucketFamilyByUniqueInput(where: WhereIdInput!): DistributionBucketFamily @deprecated(reason: "Use distributionBucketFamilyById")
   distributionBucketFamiliesConnection(orderBy: [DistributionBucketFamilyOrderByInput!]!, after: String, first: Int, where: DistributionBucketFamilyWhereInput): DistributionBucketFamiliesConnection!
-  workers(where: WorkerWhereInput, orderBy: [WorkerOrderByInput!], offset: Int, limit: Int): [Worker!]!
-  workerById(id: String!): Worker
-  workerByUniqueInput(where: WhereIdInput!): Worker @deprecated(reason: "Use workerById")
-  workersConnection(orderBy: [WorkerOrderByInput!]!, after: String, first: Int, where: WorkerWhereInput): WorkersConnection!
   squidStatus: SquidStatus
   squidVersion: SquidVersion!
 }
@@ -2147,66 +2143,5 @@ input VideoSubtitleWhereInput {
 
 input WhereIdInput {
   id: String!
-}
-
-type Worker {
-  """Worker id ({workingGroupName}-{workerId})"""
-  id: String!
-
-  """WorkerId in specific working group module"""
-  runtimeId: BigInt!
-}
-
-type WorkerEdge {
-  node: Worker!
-  cursor: String!
-}
-
-enum WorkerOrderByInput {
-  id_ASC
-  id_DESC
-  id_ASC_NULLS_FIRST
-  id_DESC_NULLS_LAST
-  runtimeId_ASC
-  runtimeId_DESC
-  runtimeId_ASC_NULLS_FIRST
-  runtimeId_DESC_NULLS_LAST
-}
-
-type WorkersConnection {
-  edges: [WorkerEdge!]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-input WorkerWhereInput {
-  id_isNull: Boolean
-  id_eq: String
-  id_not_eq: String
-  id_gt: String
-  id_gte: String
-  id_lt: String
-  id_lte: String
-  id_in: [String!]
-  id_not_in: [String!]
-  id_contains: String
-  id_not_contains: String
-  id_containsInsensitive: String
-  id_not_containsInsensitive: String
-  id_startsWith: String
-  id_not_startsWith: String
-  id_endsWith: String
-  id_not_endsWith: String
-  runtimeId_isNull: Boolean
-  runtimeId_eq: BigInt
-  runtimeId_not_eq: BigInt
-  runtimeId_gt: BigInt
-  runtimeId_gte: BigInt
-  runtimeId_lt: BigInt
-  runtimeId_lte: BigInt
-  runtimeId_in: [BigInt!]
-  runtimeId_not_in: [BigInt!]
-  AND: [WorkerWhereInput!]
-  OR: [WorkerWhereInput!]
 }
 
