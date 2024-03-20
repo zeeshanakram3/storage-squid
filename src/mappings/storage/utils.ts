@@ -273,25 +273,29 @@ export async function processSetNodeOperationalStatusMessage(
         .new({ id: bucketId, storageBucketId: bucketId })
 
     if (isSet(meta.operationalStatus)) {
+      const currentNodeOperationalStatusType = metadataEntity.nodeOperationalStatus?.isTypeOf
+
       metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
         actor ? 'worker' : 'lead',
         metadataEntity.nodeOperationalStatus,
         meta.operationalStatus
       )
+
+      // event processing
+
+      if (currentNodeOperationalStatusType !== metadataEntity.nodeOperationalStatus?.isTypeOf) {
+        const operationalStatusSetEvent = new StorageNodeOperationalStatusSetEvent({
+          ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+          storageBucket: storageBucket.id,
+          operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
+        })
+
+        overlay.getRepository(Event).new({
+          ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+          data: operationalStatusSetEvent,
+        })
+      }
     }
-
-    // event processing
-
-    const operationalStatusSetEvent = new StorageNodeOperationalStatusSetEvent({
-      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
-      storageBucket: storageBucket.id,
-      operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
-    })
-
-    overlay.getRepository(Event).new({
-      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
-      data: operationalStatusSetEvent,
-    })
   }
 
   // Update the operational status of Distribution node
@@ -324,24 +328,28 @@ export async function processSetNodeOperationalStatusMessage(
       })
 
     if (isSet(meta.operationalStatus)) {
+      const currentNodeOperationalStatusType = metadataEntity.nodeOperationalStatus?.isTypeOf
+
       metadataEntity.nodeOperationalStatus = processNodeOperationalStatusMetadata(
         actor ? 'worker' : 'lead',
         metadataEntity.nodeOperationalStatus,
         meta.operationalStatus
       )
+
+      // event processing
+
+      if (currentNodeOperationalStatusType !== metadataEntity.nodeOperationalStatus?.isTypeOf) {
+        const operationalStatusSetEvent = new DistributionNodeOperationalStatusSetEvent({
+          ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+          bucketOperator: operator.id,
+          operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
+        })
+
+        overlay.getRepository(Event).new({
+          ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
+          data: operationalStatusSetEvent,
+        })
+      }
     }
-
-    // event processing
-
-    const operationalStatusSetEvent = new DistributionNodeOperationalStatusSetEvent({
-      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
-      bucketOperator: operator.id,
-      operationalStatus: metadataEntity.nodeOperationalStatus || undefined,
-    })
-
-    overlay.getRepository(Event).new({
-      ...genericEventFields(overlay, block, indexInBlock, extrinsicHash),
-      data: operationalStatusSetEvent,
-    })
   }
 }

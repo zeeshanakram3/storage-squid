@@ -56,7 +56,7 @@ type StorageNodeOperationalStatusSetEvent {
 
 type DistributionNodeOperationalStatusSetEvent {
   "Distribution bucket operator"
-  bucketOperator: DistributionBucketOperator
+  bucketOperator: DistributionBucketOperator!
 
   "Operational status that was set"
   operationalStatus: NodeOperationalStatus!

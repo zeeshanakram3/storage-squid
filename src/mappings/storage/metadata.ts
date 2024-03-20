@@ -68,7 +68,11 @@ export async function processStorageOperatorMetadata(
     processNodeLocationMetadata(operatorMetadata, metadataUpdate.location)
   }
   if (isSet(metadataUpdate.operationalStatus)) {
-    processNodeOperationalStatusMetadata('worker', undefined, metadataUpdate.operationalStatus)
+    processNodeOperationalStatusMetadata(
+      'worker',
+      operatorMetadata.nodeOperationalStatus,
+      metadataUpdate.operationalStatus
+    )
   }
   if (isSet(metadataUpdate.extra)) {
     operatorMetadata.extra = metadataUpdate.extra || null
@@ -204,7 +208,11 @@ export async function processDistributionOperatorMetadata(
     processNodeLocationMetadata(operatorMetadata, metadataUpdate.location)
   }
   if (isSet(metadataUpdate.operationalStatus)) {
-    processNodeOperationalStatusMetadata('worker', undefined, metadataUpdate.operationalStatus)
+    processNodeOperationalStatusMetadata(
+      'worker',
+      operatorMetadata.nodeOperationalStatus,
+      metadataUpdate.operationalStatus
+    )
   }
   if (isSet(metadataUpdate.extra)) {
     operatorMetadata.extra = metadataUpdate.extra || null
