@@ -4,9 +4,10 @@ import {
   IDistributionBucketOperatorMetadata,
   IGeographicalArea,
   INodeLocationMetadata,
-  INodeOperationalStatusMetadata,
+  INodeOperationalStatus,
   IStorageBucketOperatorMetadata,
-  NodeOperationalStatusMetadata,
+  NodeOperationalStatusNoServiceFrom as NodeOperationalStatusNoServiceFromMetadata,
+  NodeOperationalStatusNoServiceUntil as NodeOperationalStatusNoServiceUntilMetadata,
 } from '@joystream/metadata-protobuf'
 import { DecodedMetadataObject } from '@joystream/metadata-protobuf/types'
 import {
@@ -29,13 +30,13 @@ import {
   NodeLocationMetadata,
   NodeOperationalStatus,
   NodeOperationalStatusNoService,
-  NodeOperationalStatusNoServiceDuring,
   NodeOperationalStatusNoServiceFrom,
+  NodeOperationalStatusNoServiceUntil,
   NodeOperationalStatusNormal,
   StorageBucketOperatorMetadata,
 } from '../../model'
 import { EntityManagerOverlay, Flat } from '../../utils/overlay'
-import { invalidMetadata } from '../utils'
+import { invalidMetadata, parseDateStr } from '../utils'
 
 export const protobufContinentToGraphlContinent: {
   [key in GeographicalAreaProto.Continent]: Continent
@@ -68,7 +69,7 @@ export async function processStorageOperatorMetadata(
     processNodeLocationMetadata(operatorMetadata, metadataUpdate.location)
   }
   if (isSet(metadataUpdate.operationalStatus)) {
-    processNodeOperationalStatusMetadata(
+    operatorMetadata.nodeOperationalStatus = processNodeOperationalStatusMetadata(
       'worker',
       operatorMetadata.nodeOperationalStatus,
       metadataUpdate.operationalStatus
@@ -120,13 +121,13 @@ function processNodeLocationMetadata(
 export function processNodeOperationalStatusMetadata(
   actorContext: 'lead' | 'worker',
   currentStatus: NodeOperationalStatus | null | undefined,
-  meta: INodeOperationalStatusMetadata
-): NodeOperationalStatus {
+  meta: INodeOperationalStatus
+): NodeOperationalStatus | null | undefined {
   const isCurrentStatusForced =
     currentStatus &&
     (currentStatus instanceof NodeOperationalStatusNoService ||
       currentStatus instanceof NodeOperationalStatusNoServiceFrom ||
-      currentStatus instanceof NodeOperationalStatusNoServiceDuring) &&
+      currentStatus instanceof NodeOperationalStatusNoServiceUntil) &&
     currentStatus.forced
 
   // if current state is forced by lead, then prevent worker from unilaterally reversing.
@@ -134,59 +135,56 @@ export function processNodeOperationalStatusMetadata(
     return currentStatus
   }
 
-  // Validate date formats
-  let validatedNoServiceFrom: Date | undefined
-  let validatedNoServiceTo: Date | undefined
-
-  try {
-    if (meta.noServiceFrom) {
-      new Date(meta.noServiceFrom).toISOString()
-      validatedNoServiceFrom = new Date(meta.noServiceFrom)
-    }
-  } catch (error) {
-    invalidMetadata(NodeOperationalStatusMetadata, `Invalid date format for "noServiceFrom"`, {
-      decodedMessage: meta,
-    })
+  // For status type Normal
+  if (meta.normal) {
+    const status = new NodeOperationalStatusNormal()
+    status.rationale = meta.normal.rationale
+    return status
   }
-
-  try {
-    if (meta.noServiceTo) {
-      new Date(meta.noServiceTo).toISOString()
-      validatedNoServiceTo = new Date(meta.noServiceTo)
-    }
-  } catch (error) {
-    invalidMetadata(NodeOperationalStatusMetadata, `Invalid date format for "noServiceTo"`, {
-      decodedMessage: meta,
-    })
+  // For status type NoService
+  else if (meta.noService) {
+    const status = new NodeOperationalStatusNoService()
+    status.rationale = meta.noService.rationale
+    status.forced = actorContext === 'lead'
+    return status
   }
-
-  // set node state to NoService
-  if (meta.status === NodeOperationalStatusMetadata.OperationalStatus.NO_SERVICE) {
-    if (validatedNoServiceFrom && validatedNoServiceTo) {
-      const status = new NodeOperationalStatusNoServiceDuring()
-      status.rationale = meta.rationale
-      status.forced = actorContext === 'lead'
-      status.from = validatedNoServiceFrom
-      status.to = validatedNoServiceTo
-      return status
-    } else if (validatedNoServiceFrom && !validatedNoServiceTo) {
-      const status = new NodeOperationalStatusNoServiceFrom()
-      status.rationale = meta.rationale
-      status.forced = actorContext === 'lead'
-      status.from = validatedNoServiceFrom
-      return status
-    } else if (!validatedNoServiceFrom && !validatedNoServiceTo) {
-      const status = new NodeOperationalStatusNoService()
-      status.rationale = meta.rationale
-      status.forced = actorContext === 'lead'
-      return status
+  // For status type NoServiceFrom
+  else if (meta.noServiceFrom) {
+    const from = parseDateStr(meta.noServiceFrom.from)
+    if (!from) {
+      invalidMetadata(
+        NodeOperationalStatusNoServiceFromMetadata,
+        `Invalid date format for "noServiceFrom"`,
+        { decodedMessage: meta.noServiceFrom }
+      )
+      return currentStatus
     }
-  }
 
-  // Default operational status of the node
-  const status = new NodeOperationalStatusNormal()
-  status.rationale = meta.rationale
-  return status
+    const status = new NodeOperationalStatusNoServiceFrom()
+    status.rationale = meta.noServiceFrom.rationale
+    status.forced = actorContext === 'lead'
+    status.from = from
+    return status
+  }
+  // For status type NoServiceUntil
+  else if (meta.noServiceUntil) {
+    const from = meta.noServiceUntil.from ? parseDateStr(meta.noServiceUntil.from) : new Date()
+    const until = parseDateStr(meta.noServiceUntil.until)
+    if (!from || !until) {
+      invalidMetadata(
+        NodeOperationalStatusNoServiceUntilMetadata,
+        `Invalid date format for "noServiceUntil"`,
+        { decodedMessage: meta.noServiceUntil }
+      )
+      return currentStatus
+    }
+    const status = new NodeOperationalStatusNoServiceUntil()
+    status.rationale = meta.noServiceUntil.rationale
+    status.forced = actorContext === 'lead'
+    status.from = from
+    status.until = until
+    return status
+  }
 }
 
 export async function processDistributionOperatorMetadata(
@@ -208,7 +206,7 @@ export async function processDistributionOperatorMetadata(
     processNodeLocationMetadata(operatorMetadata, metadataUpdate.location)
   }
   if (isSet(metadataUpdate.operationalStatus)) {
-    processNodeOperationalStatusMetadata(
+    operatorMetadata.nodeOperationalStatus = processNodeOperationalStatusMetadata(
       'worker',
       operatorMetadata.nodeOperationalStatus,
       metadataUpdate.operationalStatus

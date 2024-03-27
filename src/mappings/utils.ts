@@ -109,3 +109,15 @@ export function toLowerFirstLetter(str: string) {
   if (!str) return '' // Return an empty string if str is falsy
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
+
+export function parseDateStr(date: string): Date | undefined {
+  try {
+    if (date) {
+      const dateObj = new Date(date)
+      dateObj.toISOString() // Throws an error if the date is invalid
+      return dateObj
+    }
+  } catch (error) {
+    console.error(`Invalid date format:`, date)
+  }
+}

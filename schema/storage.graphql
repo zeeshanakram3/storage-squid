@@ -86,7 +86,7 @@ type NodeOperationalStatusNoServiceFrom {
   rationale: String
 }
 
-type NodeOperationalStatusNoServiceDuring {
+type NodeOperationalStatusNoServiceUntil {
   "Whether the state was set by lead (true) or by the operator (false), it is meant to prevent worker from unilaterally reversing."
   forced: Boolean!
 
@@ -94,7 +94,7 @@ type NodeOperationalStatusNoServiceDuring {
   from: DateTime!
 
   "The time until which the bucket would have to no service"
-  to: DateTime!
+  until: DateTime!
 
   "Reason why node was set to this state"
   rationale: String
@@ -104,7 +104,7 @@ union NodeOperationalStatus =
     NodeOperationalStatusNormal
   | NodeOperationalStatusNoService
   | NodeOperationalStatusNoServiceFrom
-  | NodeOperationalStatusNoServiceDuring
+  | NodeOperationalStatusNoServiceUntil
 
 type StorageBucketOperatorMetadata @entity {
   id: ID!
