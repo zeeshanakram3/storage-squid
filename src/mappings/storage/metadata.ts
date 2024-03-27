@@ -151,10 +151,12 @@ export function processNodeOperationalStatusMetadata(
   // For status type NoServiceFrom
   else if (meta.noServiceFrom) {
     const from = parseDateStr(meta.noServiceFrom.from)
-    if (!from) {
+
+    // Date must be in the future
+    if (!from || from < new Date()) {
       invalidMetadata(
         NodeOperationalStatusNoServiceFromMetadata,
-        `Invalid date format for "noServiceFrom"`,
+        `Invalid date for "noServiceFrom"`,
         { decodedMessage: meta.noServiceFrom }
       )
       return currentStatus
@@ -170,10 +172,12 @@ export function processNodeOperationalStatusMetadata(
   else if (meta.noServiceUntil) {
     const from = meta.noServiceUntil.from ? parseDateStr(meta.noServiceUntil.from) : new Date()
     const until = parseDateStr(meta.noServiceUntil.until)
-    if (!from || !until) {
+
+    // Dates must be in the future and "until" must be after "from"
+    if (!from || !until || from < new Date() || from > until) {
       invalidMetadata(
         NodeOperationalStatusNoServiceUntilMetadata,
-        `Invalid date format for "noServiceUntil"`,
+        `Invalid date/s for "noServiceUntil"`,
         { decodedMessage: meta.noServiceUntil }
       )
       return currentStatus
